@@ -616,6 +616,34 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 			this, SLOT(SimpleReplayBufferChanged()));
 	connect(ui->simpleRBSecMax, SIGNAL(valueChanged(int)),
 			this, SLOT(SimpleReplayBufferChanged()));
+	connect(ui->advReplayBuf, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack1, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack2, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack3, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack4, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack5, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecTrack6, SIGNAL(toggled(bool)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack1Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack2Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack3Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack4Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack5Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutTrack6Bitrate, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advOutRecType, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->listWidget, SIGNAL(currentRowChanged(int)),
 			this, SLOT(SimpleRecordingEncoderChanged()));
 
@@ -3734,8 +3762,15 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
 
 void OBSBasicSettings::UpdateAutomaticReplayBufferCheckboxes()
 {
-	bool state = ui->simpleReplayBuf->isChecked() &&
-		ui->outputMode->currentIndex() == 0;
+	bool state = false;
+	switch (ui->outputMode->currentIndex()) {
+	case 0:
+		state = ui->simpleReplayBuf->isChecked();
+		break;
+	case 1:
+		state = ui->advReplayBuf->isChecked();
+		break;
+	}
 	ui->replayWhileStreaming->setEnabled(state);
 	ui->keepReplayStreamStops->setEnabled(state &&
 			ui->replayWhileStreaming->isChecked());
@@ -3771,6 +3806,74 @@ void OBSBasicSettings::SimpleReplayBufferChanged()
 
 	UpdateAutomaticReplayBufferCheckboxes();
 
+}
+
+void OBSBasicSettings::AdvReplayBufferChanged()
+{
+	obs_data_t *settings;
+	if (recordEncoderProps) {
+		settings = recordEncoderProps->GetSettings();
+	}
+	else {
+		const char *encoder = GetComboData(ui->advOutRecEncoder).toUtf8().constData();
+		settings = obs_encoder_defaults(encoder);
+
+		if (!settings)
+			return;
+
+		char encoderJsonPath[512];
+		int ret = GetProfilePath(encoderJsonPath,
+			sizeof(encoderJsonPath), "recordEncoder.json");
+		if (ret > 0) {
+			obs_data_t *data = obs_data_create_from_json_file_safe(
+				encoderJsonPath, "bak");
+			obs_data_apply(settings, data);
+			obs_data_release(data);
+		}
+	}
+
+	int vbitrate = (int)obs_data_get_int(settings, "bitrate");
+	const char *rateControl = obs_data_get_string(settings, "rate_control");
+	//obs_data_release(settings);
+
+	bool lossless = strcmp(rateControl, "lossless") == 0 || ui->advOutRecType->currentIndex() == 1;
+	bool replayBufferEnabled = ui->advReplayBuf->isChecked();
+
+	ui->advRBMegsMaxLabel->setVisible(false);
+	ui->advRBMegsMax->setVisible(false);
+
+	int abitrate = 0;
+	if (ui->advOutRecTrack1->isChecked())
+		abitrate += ui->advOutTrack1Bitrate->currentData().toInt();
+	if (ui->advOutRecTrack2->isChecked())
+		abitrate += ui->advOutTrack2Bitrate->currentData().toInt();
+	if (ui->advOutRecTrack3->isChecked())
+		abitrate += ui->advOutTrack3Bitrate->currentData().toInt();
+	if (ui->advOutRecTrack4->isChecked())
+		abitrate += ui->advOutTrack4Bitrate->currentData().toInt();
+	if (ui->advOutRecTrack5->isChecked())
+		abitrate += ui->advOutTrack5Bitrate->currentData().toInt();
+	if (ui->advOutRecTrack6->isChecked())
+		abitrate += ui->advOutTrack6Bitrate->currentData().toInt();
+
+	int seconds = ui->advRBSecMax->value();
+
+	int64_t memMB = int64_t(seconds) * int64_t(vbitrate + abitrate) *
+		1000 / 8 / 1024 / 1024;
+	if (memMB < 1) memMB = 1;
+
+	if (vbitrate > 0)
+		ui->advRBEstimate->setText(
+			QTStr(ESTIMATE_STR).arg(
+				QString::number(int(memMB))));
+	else
+		ui->advRBEstimate->setText(QTStr(ESTIMATE_UNKNOWN_STR));
+
+	ui->advReplayBufferGroupBox->setVisible(!lossless && replayBufferEnabled);
+	ui->line_4->setVisible(!lossless && replayBufferEnabled);
+	ui->advReplayBuf->setEnabled(!lossless);
+
+	UpdateAutomaticReplayBufferCheckboxes();
 }
 
 #define SIMPLE_OUTPUT_WARNING(str) \
