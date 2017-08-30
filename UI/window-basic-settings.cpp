@@ -644,6 +644,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 		this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecType, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(AdvReplayBufferChanged()));
+	connect(ui->advRBSecMax, SIGNAL(valueChanged(int)),
+		this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->listWidget, SIGNAL(currentRowChanged(int)),
 			this, SLOT(SimpleRecordingEncoderChanged()));
 
@@ -1589,6 +1591,8 @@ void OBSBasicSettings::LoadAdvOutputRecordingEncoderProperties()
 		recordEncoderProps = CreateEncoderPropertyView(type,
 				"recordEncoder.json");
 		ui->advOutRecStandard->layout()->addWidget(recordEncoderProps);
+		connect(recordEncoderProps, SIGNAL(Changed()),
+			this, SLOT(AdvReplayBufferChanged()));
 	}
 
 	curAdvRecordEncoder = type;
@@ -3216,6 +3220,8 @@ void OBSBasicSettings::on_advOutRecEncoder_currentIndexChanged(int idx)
 				loadSettings ? "recordEncoder.json" : nullptr,
 				true);
 		ui->advOutRecStandard->layout()->addWidget(recordEncoderProps);
+		connect(recordEncoderProps, SIGNAL(Changed()),
+			this, SLOT(AdvReplayBufferChanged()));
 	}
 }
 
@@ -3834,7 +3840,6 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 
 	int vbitrate = (int)obs_data_get_int(settings, "bitrate");
 	const char *rateControl = obs_data_get_string(settings, "rate_control");
-	//obs_data_release(settings);
 
 	bool lossless = strcmp(rateControl, "lossless") == 0 || ui->advOutRecType->currentIndex() == 1;
 	bool replayBufferEnabled = ui->advReplayBuf->isChecked();
@@ -3844,17 +3849,19 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 
 	int abitrate = 0;
 	if (ui->advOutRecTrack1->isChecked())
-		abitrate += ui->advOutTrack1Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack1Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack2->isChecked())
-		abitrate += ui->advOutTrack2Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack2Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack3->isChecked())
-		abitrate += ui->advOutTrack3Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack3Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack4->isChecked())
-		abitrate += ui->advOutTrack4Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack4Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack5->isChecked())
-		abitrate += ui->advOutTrack5Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack5Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack6->isChecked())
-		abitrate += ui->advOutTrack6Bitrate->currentData().toInt();
+		abitrate += ui->advOutTrack6Bitrate->currentText().toInt();
+
+	qDebug("abitrate: %d", abitrate);
 
 	int seconds = ui->advRBSecMax->value();
 
