@@ -1626,7 +1626,7 @@ bool AdvancedOutput::StartReplayBuffer()
 			"RecRBPrefix");
 		rbSuffix = config_get_string(main->Config(), "SimpleOutput",
 			"RecRBSuffix");
-		rbTime = config_get_int(main->Config(), "SimpleOutput",
+		rbTime = config_get_int(main->Config(), "AdvOut",
 			"RecRBTime");
 
 		os_dir_t *dir = path && path[0] ? os_opendir(path) : nullptr;
