@@ -387,6 +387,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->advOutTrack5Name,     EDIT_CHANGED,   OUTPUTS_CHANGED);
 	HookWidget(ui->advOutTrack6Bitrate,  COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->advOutTrack6Name,     EDIT_CHANGED,   OUTPUTS_CHANGED);
+	HookWidget(ui->advReplayBuf,         CHECK_CHANGED,  OUTPUTS_CHANGED);
+	HookWidget(ui->advRBSecMax,          SCROLL_CHANGED, OUTPUTS_CHANGED);
 	HookWidget(ui->channelSetup,         COMBO_CHANGED,  AUDIO_RESTART);
 	HookWidget(ui->sampleRate,           COMBO_CHANGED,  AUDIO_RESTART);
 	HookWidget(ui->desktopAudioDevice1,  COMBO_CHANGED,  AUDIO_CHANGED);
@@ -2086,6 +2088,10 @@ void OBSBasicSettings::LoadAdvancedSettings()
 			"RecRBPrefix");
 	const char *rbSuffix = config_get_string(main->Config(), "SimpleOutput",
 			"RecRBSuffix");
+	bool replayBuf = config_get_string(main->Config(), "AdvOut",
+			"RecRB");
+	int rbTime = config_get_int(main->Config(), "AdvOut",
+			"RecRBTime");
 	loading = true;
 
 	LoadRendererList();
@@ -2099,6 +2105,9 @@ void OBSBasicSettings::LoadAdvancedSettings()
 	ui->overwriteIfExists->setChecked(overwriteIfExists);
 	ui->simpleRBPrefix->setText(rbPrefix);
 	ui->simpleRBSuffix->setText(rbSuffix);
+
+	ui->advReplayBuf->setChecked(replayBuf);
+	ui->advRBSecMax->setValue(rbTime);
 
 	ui->reconnectEnable->setChecked(reconnect);
 	ui->reconnectRetryDelay->setValue(retryDelay);
@@ -2889,6 +2898,9 @@ void OBSBasicSettings::SaveOutputSettings()
 	SaveEdit(ui->advOutTrack4Name, "AdvOut", "Track4Name");
 	SaveEdit(ui->advOutTrack5Name, "AdvOut", "Track5Name");
 	SaveEdit(ui->advOutTrack6Name, "AdvOut", "Track6Name");
+
+	SaveCheckBox(ui->advReplayBuf, "AdvOut", "RecRB");
+	SaveSpinBox(ui->advRBSecMax, "AdvOut", "RecRBTime");
 
 	WriteJsonData(streamEncoderProps, "streamEncoder.json");
 	WriteJsonData(recordEncoderProps, "recordEncoder.json");
@@ -3860,8 +3872,6 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 		abitrate += ui->advOutTrack5Bitrate->currentText().toInt();
 	if (ui->advOutRecTrack6->isChecked())
 		abitrate += ui->advOutTrack6Bitrate->currentText().toInt();
-
-	qDebug("abitrate: %d", abitrate);
 
 	int seconds = ui->advRBSecMax->value();
 
