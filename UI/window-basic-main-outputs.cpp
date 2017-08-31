@@ -1063,7 +1063,6 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 	} else {
 		bool useReplayBuffer = config_get_bool(main->Config(), "AdvOut", "RecRB");
 		if (useReplayBuffer) {
-			// TODO: Consider making this a common function
 			const char *str = config_get_string(main->Config(),
 				"Hotkeys", "ReplayBuffer");
 			obs_data_t *hotkey = obs_data_create_from_json(str);
