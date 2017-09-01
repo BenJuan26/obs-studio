@@ -3831,7 +3831,6 @@ void OBSBasicSettings::SimpleReplayBufferChanged()
 void OBSBasicSettings::AdvReplayBufferChanged()
 {
 	obs_data_t *settings;
-
 	QString encoder = ui->advOutRecEncoder->currentText();
 	bool useStream = QString::compare(encoder, TEXT_USE_STREAM_ENC) == 0;
 	if (useStream && streamEncoderProps)
