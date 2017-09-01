@@ -1527,6 +1527,8 @@ void OBSBasicSettings::LoadAdvOutputStreamingEncoderProperties()
 
 	connect(streamEncoderProps, SIGNAL(Changed()),
 			this, SLOT(UpdateStreamDelayEstimate()));
+	connect(streamEncoderProps, SIGNAL(Changed()),
+		this, SLOT(AdvReplayBufferChanged()));
 
 	curAdvStreamEncoder = type;
 
@@ -3829,12 +3831,17 @@ void OBSBasicSettings::SimpleReplayBufferChanged()
 void OBSBasicSettings::AdvReplayBufferChanged()
 {
 	obs_data_t *settings;
-	if (recordEncoderProps) {
+
+	QString encoder = ui->advOutRecEncoder->currentText();
+	bool useStream = QString::compare(encoder, TEXT_USE_STREAM_ENC) == 0;
+	if (useStream && streamEncoderProps)
+		settings = streamEncoderProps->GetSettings();
+	else if (!useStream && recordEncoderProps)
 		settings = recordEncoderProps->GetSettings();
-	}
 	else {
-		const char *encoder = GetComboData(ui->advOutRecEncoder).toUtf8().constData();
-		settings = obs_encoder_defaults(encoder);
+		if (useStream)
+			encoder = GetComboData(ui->advOutEncoder);
+		settings = obs_encoder_defaults(encoder.toUtf8().constData());
 
 		if (!settings)
 			return;
@@ -3855,9 +3862,6 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 
 	bool lossless = strcmp(rateControl, "lossless") == 0 || ui->advOutRecType->currentIndex() == 1;
 	bool replayBufferEnabled = ui->advReplayBuf->isChecked();
-
-	ui->advRBMegsMaxLabel->setVisible(false);
-	ui->advRBMegsMax->setVisible(false);
 
 	int abitrate = 0;
 	if (ui->advOutRecTrack1->isChecked())
