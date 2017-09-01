@@ -1067,7 +1067,7 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 					"Hotkeys", "ReplayBuffer");
 			obs_data_t *hotkey = obs_data_create_from_json(str);
 			replayBuffer = obs_output_create("replay_buffer",
-				Str("ReplayBuffer"), nullptr, hotkey);
+					Str("ReplayBuffer"), nullptr, hotkey);
 
 			obs_data_release(hotkey);
 			if (!replayBuffer)
