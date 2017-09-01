@@ -2090,7 +2090,7 @@ void OBSBasicSettings::LoadAdvancedSettings()
 			"RecRBPrefix");
 	const char *rbSuffix = config_get_string(main->Config(), "SimpleOutput",
 			"RecRBSuffix");
-	bool replayBuf = config_get_string(main->Config(), "AdvOut",
+	bool replayBuf = config_get_bool(main->Config(), "AdvOut",
 			"RecRB");
 	int rbTime = config_get_int(main->Config(), "AdvOut",
 			"RecRBTime");
