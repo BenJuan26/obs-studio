@@ -619,35 +619,35 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	connect(ui->simpleRBSecMax, SIGNAL(valueChanged(int)),
 			this, SLOT(SimpleReplayBufferChanged()));
 	connect(ui->advReplayBuf, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack1, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack2, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack3, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack4, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack5, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecTrack6, SIGNAL(toggled(bool)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack1Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack2Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack3Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack4Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack5Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutTrack6Bitrate, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advOutRecType, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->advRBSecMax, SIGNAL(valueChanged(int)),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 	connect(ui->listWidget, SIGNAL(currentRowChanged(int)),
 			this, SLOT(SimpleRecordingEncoderChanged()));
 
@@ -1528,7 +1528,7 @@ void OBSBasicSettings::LoadAdvOutputStreamingEncoderProperties()
 	connect(streamEncoderProps, SIGNAL(Changed()),
 			this, SLOT(UpdateStreamDelayEstimate()));
 	connect(streamEncoderProps, SIGNAL(Changed()),
-		this, SLOT(AdvReplayBufferChanged()));
+			this, SLOT(AdvReplayBufferChanged()));
 
 	curAdvStreamEncoder = type;
 
@@ -1596,7 +1596,7 @@ void OBSBasicSettings::LoadAdvOutputRecordingEncoderProperties()
 				"recordEncoder.json");
 		ui->advOutRecStandard->layout()->addWidget(recordEncoderProps);
 		connect(recordEncoderProps, SIGNAL(Changed()),
-			this, SLOT(AdvReplayBufferChanged()));
+				this, SLOT(AdvReplayBufferChanged()));
 	}
 
 	curAdvRecordEncoder = type;
@@ -3235,7 +3235,7 @@ void OBSBasicSettings::on_advOutRecEncoder_currentIndexChanged(int idx)
 				true);
 		ui->advOutRecStandard->layout()->addWidget(recordEncoderProps);
 		connect(recordEncoderProps, SIGNAL(Changed()),
-			this, SLOT(AdvReplayBufferChanged()));
+				this, SLOT(AdvReplayBufferChanged()));
 	}
 }
 
@@ -3833,11 +3833,11 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 	obs_data_t *settings;
 	QString encoder = ui->advOutRecEncoder->currentText();
 	bool useStream = QString::compare(encoder, TEXT_USE_STREAM_ENC) == 0;
-	if (useStream && streamEncoderProps)
+	if (useStream && streamEncoderProps) {
 		settings = streamEncoderProps->GetSettings();
-	else if (!useStream && recordEncoderProps)
+	} else if (!useStream && recordEncoderProps) {
 		settings = recordEncoderProps->GetSettings();
-	else {
+	} else {
 		if (useStream)
 			encoder = GetComboData(ui->advOutEncoder);
 		settings = obs_encoder_defaults(encoder.toUtf8().constData());
@@ -3847,10 +3847,10 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 
 		char encoderJsonPath[512];
 		int ret = GetProfilePath(encoderJsonPath,
-			sizeof(encoderJsonPath), "recordEncoder.json");
+				sizeof(encoderJsonPath), "recordEncoder.json");
 		if (ret > 0) {
 			obs_data_t *data = obs_data_create_from_json_file_safe(
-				encoderJsonPath, "bak");
+					encoderJsonPath, "bak");
 			obs_data_apply(settings, data);
 			obs_data_release(data);
 		}
@@ -3879,12 +3879,12 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 	int seconds = ui->advRBSecMax->value();
 
 	int64_t memMB = int64_t(seconds) * int64_t(vbitrate + abitrate) *
-		1000 / 8 / 1024 / 1024;
+			1000 / 8 / 1024 / 1024;
 	if (memMB < 1) memMB = 1;
 
 	if (vbitrate > 0)
 		ui->advRBEstimate->setText(
-			QTStr(ESTIMATE_STR).arg(
+				QTStr(ESTIMATE_STR).arg(
 				QString::number(int(memMB))));
 	else
 		ui->advRBEstimate->setText(QTStr(ESTIMATE_UNKNOWN_STR));
