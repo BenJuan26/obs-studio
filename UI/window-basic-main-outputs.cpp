@@ -1061,7 +1061,8 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 			      "(advanced output)";
 		obs_output_release(fileOutput);
 	} else {
-		bool useReplayBuffer = config_get_bool(main->Config(), "AdvOut", "RecRB");
+		bool useReplayBuffer = config_get_bool(main->Config(),
+				"AdvOut", "RecRB");
 		if (useReplayBuffer) {
 			const char *str = config_get_string(main->Config(),
 					"Hotkeys", "ReplayBuffer");
@@ -1214,7 +1215,8 @@ inline void AdvancedOutput::SetupRecording()
 		obs_encoder_set_video(h264Recording, obs_get_video());
 		obs_output_set_video_encoder(fileOutput, h264Recording);
 		if (replayBuffer)
-			obs_output_set_video_encoder(replayBuffer, h264Recording);
+			obs_output_set_video_encoder(replayBuffer,
+					h264Recording);
 	}
 
 	for (int i = 0; i < MAX_AUDIO_MIXES; i++) {
@@ -1222,7 +1224,8 @@ inline void AdvancedOutput::SetupRecording()
 			obs_output_set_audio_encoder(fileOutput, aacTrack[i],
 					idx);
 			if (replayBuffer)
-				obs_output_set_audio_encoder(replayBuffer, aacTrack[i], idx);
+				obs_output_set_audio_encoder(replayBuffer,
+						aacTrack[i], idx);
 			idx++;
 		}
 	}
