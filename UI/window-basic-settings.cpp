@@ -3859,7 +3859,8 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 	int vbitrate = (int)obs_data_get_int(settings, "bitrate");
 	const char *rateControl = obs_data_get_string(settings, "rate_control");
 
-	bool lossless = strcmp(rateControl, "lossless") == 0 || ui->advOutRecType->currentIndex() == 1;
+	bool lossless = strcmp(rateControl, "lossless") == 0 ||
+			ui->advOutRecType->currentIndex() == 1;
 	bool replayBufferEnabled = ui->advReplayBuf->isChecked();
 
 	int abitrate = 0;
@@ -3880,7 +3881,8 @@ void OBSBasicSettings::AdvReplayBufferChanged()
 
 	int64_t memMB = int64_t(seconds) * int64_t(vbitrate + abitrate) *
 			1000 / 8 / 1024 / 1024;
-	if (memMB < 1) memMB = 1;
+	if (memMB < 1)
+		memMB = 1;
 
 	if (vbitrate > 0)
 		ui->advRBEstimate->setText(
